@@ -80,3 +80,14 @@ def test_soundex_repeated_uses(texts, size):
         assert original_text == text
         assert cython_out == python_soundex(text)
 
+
+@given(st.lists(cython_input_strategy, min_size=100, max_size=200, unique=True), st.integers(1, 10))
+def test_doesnt_mutate_output_buffer(texts, size):
+    cython_soundex = fuzzy.Soundex(size)
+    python_soundex = PythonSoundex(size)
+
+    # maintain a list of all of cythons output values
+    cython_outputs = [cython_soundex(text) for text in texts]
+    python_outputs = [python_soundex(text) for text in texts]
+
+    assert cython_outputs == python_outputs
