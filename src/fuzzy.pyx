@@ -1,6 +1,7 @@
 # cython: c_string_type=unicode, c_string_encoding=ascii
 
 import re
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 
 
 cdef extern from "string.h":
@@ -203,7 +204,7 @@ cdef class Soundex:
 
         written = 0
 
-        out = <char *>malloc(self.size + 1)
+        out = <char *>PyMem_Malloc(self.size + 1)
         cs = s
         ls = strlen(cs)
         for i from 0<= i < ls:
@@ -227,7 +228,7 @@ cdef class Soundex:
         try:
             return out
         finally:
-            free(out)
+            PyMem_Free(out)
 
 
 cdef extern from "double_metaphone.h":
