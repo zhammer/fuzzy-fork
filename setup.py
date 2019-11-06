@@ -19,7 +19,7 @@ pkg_resources "managed" namespace packages?
 
 params = dict(
 	name=name,
-	use_scm_version=True,
+	version='1.2.3',
 	author="YouGov, Plc.",
 	author_email="jaraco@jaraco.com",
 	description=description or name,

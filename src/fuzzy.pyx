@@ -1,6 +1,7 @@
 # cython: c_string_type=unicode, c_string_encoding=ascii
 
 import re
+from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 
 
 cdef extern from "string.h":
@@ -188,10 +189,12 @@ def nysiis(s):
 cdef class Soundex:
     cdef int size
     cdef char *map
+    cdef char *out
 
     def __init__(self, size):
         self.size = size
         self.map = "01230120022455012623010202"
+        self.out = <char *>PyMem_Malloc(self.size + 1)
 
     def __call__(self, s):
         cdef char *cs
@@ -203,7 +206,6 @@ cdef class Soundex:
 
         written = 0
 
-        out = <char *>malloc(self.size + 1)
         cs = s
         ls = strlen(cs)
         for i from 0<= i < ls:
@@ -212,22 +214,22 @@ cdef class Soundex:
                 c = c - 32
             if c >= 65 and c <= 90:
                 if written == 0:
-                    out[written] = c
+                    self.out[written] = c
                     written = written + 1
                 elif self.map[c - 65] != 48 and (written == 1 or
-                            out[written - 1] != self.map[c - 65]):
-                    out[written] = self.map[c - 65]
+                            self.out[written - 1] != self.map[c - 65]):
+                    self.out[written] = self.map[c - 65]
                     written = written + 1
             if written == self.size:
                 break
         for i from written <= i < self.size:
-            out[i] = 48
-        out[self.size] = 0
+            self.out[i] = 48
+        self.out[self.size] = 0
 
-        pout = out
-        free(out)
+        return self.out
 
-        return pout
+    def __dealloc__(self):
+        PyMem_Free(self.out)
 
 
 cdef extern from "double_metaphone.h":
